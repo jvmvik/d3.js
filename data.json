@@ -1,60 +1,74 @@
 {
-    "name": "root",
+    "name": "charac",
+    "status": "red",
     "children": [
         {
             "name":"corner 1",
-            "flag":"green",
+            "status":"red",
             "children": [
                 {
-                    "name": "arch 1",
+                    "name": "char setup",
+                    "status":"green",
                     "children": [
                         {
                             "name": "sim 1.1",
-                            "flag": "green"
+                            "status": "green"
                         },
                         {
-                            "name": "sim 1.2"
+                            "name": "sim 1.2",
+                            "status": "green"
                         },
                         {
-                            "name": "sim 1.3"
+                            "name": "sim 1.3",
+                            "status": "green"
                         },
                         {
-                            "name": "sim 1.4"
+                            "name": "sim 1.4",
+                            "status": "green"
                         }
                     ]
                 },
                 {
-                    "name": "arch 2",
-		    "flag":"red",
+                  "name": "mdb",
+		          "status":"red",
                     "children": [
                         {
-                            "name": "sim 2.1"
+                            "name": "sim 2.1",
+                            "status": "green"
                         },
                         {
-                            "name": "sim 2.2"
+                            "name": "sim 2.2",
+                            "status": "red"
                         },
                         {
-                            "name": "sim 2.3"
+                            "name": "sim 2.3",
+                            "status": "green"
                         },
                         {
-                            "name": "sim 2.4"
+                            "name": "sim 2.4",
+                            "status": "green"
                         }
                     ]
                 },
                 {
-                    "name": "arch 3",
+                    "name": "simulation",
+                    "status":"green",
                     "children": [
                         {
-                            "name": "sim 3.1"
+                            "name": "sim 3.1",
+                            "status":"green"
                         },
                         {
-                            "name": "sim 3.2"
+                            "name": "sim 3.2",
+                            "status":"green"
                         },
                         {
-                            "name": "sim 3.3"
+                            "name": "sim 3.3",
+                            "status":"green"
                         },
                         {
-                            "name": "sim 3.4"
+                            "name": "sim 3.4",
+                            "status":"green"
                         }
                     ]
                 }
@@ -62,7 +76,23 @@
         },
         {
             "name": "corner 2",
-            "flag": "green"
+            "status": "green",
+            "children":[
+                        {
+                        "name": "sanity check",
+                        "status":"green",
+                        "children": [
+                                     {
+                                     "name": "sim 2.1",
+                                     "status": "green"
+                                     },
+                                     {
+                                     "name": "sim 2.2",
+                                     "status": "green"
+                                     }
+                                     ]
+                        }
+                 ]
         }
     ]
 }
