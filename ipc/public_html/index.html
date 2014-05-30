@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Learn 3d.js</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="js/libs/d3/d3.js"></script>
+        <link href="style.css" rel="stylesheet"/>
+    </head>
+    <body>
+        <h1>Learn d3.js...</h1>
+        <div id="viz"></div>
+        <script src="data.js"></script>
+        <script type="text/javascript">
+var margin = {top: 0, right: 10, bottom: 0, left: 10},
+   width = 800 - margin.right,
+   height = 200 - margin.top - margin.bottom,
+   step = 200;
+   
+var duration = 750;
+
+var diagonal = d3.svg.diagonal()
+        .projection(function(d)
+        {
+            return [width - d.y, d.x];
+        });
+        
+var svg = d3.select("body")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .style("margin", "1em 0 1em " + -margin.left + "px");
+
+// Create object definition
+// define arrow markers for graph links
+svg.append('svg:defs').append('svg:marker')
+    .attr('id', 'end-arrow')
+    .attr('viewBox', '0 -5 10 10')
+    .attr('refX', 3)
+    .attr('markerWidth', 8)
+    .attr('markerHeight', 8)
+    .attr('orient', 'auto')
+    .append('svg:path')
+     .attr('d', 'M0,-5L10,0L0,5')
+     .attr('fill', '#000');
+
+svg.append('svg:defs').append('svg:marker')
+    .attr('id', 'start-arrow')
+    .attr('viewBox', '0 -5 10 10')
+    .attr('refX', 4)
+    .attr('markerWidth', 8)
+    .attr('markerHeight', 8)
+    .attr('orient', 'auto')
+    .append('svg:path')
+    .attr('d', 'M10,-5L0,0L10,5')
+    .attr('fill', '#000');
+    
+function tree(root, svg, margin, step)
+{
+
+var g = svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var tree = d3.layout.tree()
+        .size([height, height * 2])
+        .separation(function() {
+            return 1;
+        });
+        
+var nodes = tree.nodes(root).reverse();
+
+var diagonal = d3.svg.diagonal()
+        /*.source(function(d) {
+            return {y: width - 140 - d.source.depth * step, x: d.source.x};
+        })
+        .target(function(d) {
+            return {y: width - 20 - d.target.depth * step, x: d.target.x};
+        })*/
+        .source(function(d) {
+            return {y: d.source.depth * step +150, x: d.source.x};
+        })
+        .target(function(d) {
+            return {y:  d.target.depth * step - 5, x: d.target.x};
+        })
+        .projection(function(d) {
+            return [width - d.y, d.x];
+        });
+
+var link = g.selectAll(".link")
+        .data(tree.links(nodes))
+        .enter().append("path")
+        .attr("class", "link")
+        .attr("d", diagonal);
+//.attr("d", diagonal);
+
+var node = g.selectAll(".node")
+        .data(nodes)
+        .enter().append("g")
+        //.attr("class", function(d) {
+        //    return (d.type || "") + " node";
+        //})
+        .attr("class", "node")
+        .attr("transform", function(d)
+        {
+            //return "translate(" + (width - 150 - d.depth * step) + "," + d.x + ")";
+            return "translate(" + (width - 150 - d.depth * step) + "," + d.x +")"
+        })
+        .on("click", click)
+        .on("mouseover", function(d) {
+            d3.select(this).classed("hover", true);
+        })
+        .on("mouseout", function(d) {
+            d3.select(this).classed("hover", false);
+        });
+
+node.append("text")
+        //.atrr("class", "null")
+        .each(function(d) {
+           d.size = this.getComputedTextLength();
+           console.log(this.text);
+        })
+        .attr("x", function(d) {
+            return d.y / step - d.size;
+        })
+        .attr("dy", ".40em")
+        .text(function(d) {
+            return d.name;
+        });
+        //.each(function(d) {
+        //    d.width = this.getComputedTextLength() + 12;
+        //});
+
+node.insert("rect", "text")
+        //.atrr("class", "null")
+        .attr("ry", 10)
+        .attr("rx", 10)
+        .attr("y", -15)
+        .attr("height", 30)
+        .attr("width", 150);
+        
+  /*      // Transition nodes to their new position.
+  var nodeUpdate = node.transition()
+      .duration(duration)
+      .attr("transform", function(d)
+            {
+             return "translate(" + (width - 160 - d.depth * step) + "," + d.x + ")";
+            });
+
+        //Stuff
+        // Transition exiting nodes to the parent's new position.
+  var nodeExit = node.exit().transition()
+      .duration(1)
+      .attr("transform", function(d)
+      {
+            return "translate(" + source.y + "," + source.x + ")";
+      })
+      .remove();
+
+  nodeExit.select("circle")
+      .attr("r", 1e-6);
+
+  nodeExit.select("text")
+      .style("fill-opacity", 1e-6);
+      
+       // Update the links…
+  var link = svg.selectAll("path.link")
+      .data(links, function(d) { return d.target.id; });
+
+  // Enter any new links at the parent's previous position.
+  link.enter().insert("path", "g")
+      .attr("class", "link")
+      .attr("d", function(d)
+      {
+        var o = {x: source.x0, y: source.y0};
+        return diagonal({source: o, target: o});
+      });
+
+  // Transition links to their new position.
+  link.transition()
+      .duration(duration)
+      .attr("d", diagonal);
+
+  // Transition exiting nodes to the parent's new position.
+  link.exit().transition()
+      .duration(duration)
+      .attr("d", function(d)
+      {
+        var o = {x: source.x, y: source.y};
+        return diagonal({source: o, target: o});
+      })
+      .remove();*/
+}
+
+function click(d)
+{
+    var e = d3.event,
+            g = this.parentNode,
+            isSelected = d3.select(g).classed("selected");
+
+    if (!e.ctrlKey)
+    {
+        d3.selectAll('g.selected').classed("selected", false);
+    }
+
+    d3.select(g).classed("selected", !isSelected);
+    d3.select(g).attr("class", "selected");
+
+    console.log(d.name);
+
+    // reappend dragged element as last 
+    // so that its stays on top 
+    g.parentNode.appendChild(g);
+}
+
+/*
+ * Command to capture the data..
+ * dssc ls sync://nadc-sync2.nadc.arm.com:2658/Projects/samsung_ln14lpe/sc/oa/sc9mc_ln14lpe_base_hvt_c16 | grep INV
+ */
+var data = {name: "sc9mc_ln14lpe_base_hvt_c16",
+children: [
+    {
+        name: "INV_X0P5N_A9TH_C16",
+        children: [
+            {
+                name: "INV_X0P5N_A9TL_C14",
+                active: true,
+                children: [
+                    {
+                        type: "text",
+                        name: "INV_X1G_A9TR_C14_ARCH",
+                        active: true
+                    },
+                    {
+                        type: "text",
+                        name: "INV_X1M_A9TR_C14_ARCH",
+                        active: false
+                    }
+                ]},
+            {
+                name: "INV_X0P7F_A9TL_C14",
+                active: true,
+                children: [
+                    {type: "text", name: "INV_X1G_A9TR_C14_ARCH", active: true},
+                    {type: "text", name: "INV_X1M_A9TR_C14_ARCH", active: false}
+                ]
+            },
+            {
+                name: "INV_X0P7N_A9TL_C14",
+                active: false,
+                children: [
+                    {type: "text", name: "INV_X0P7N_A9TH_C16"}]},
+            {
+                name: "INV_X0P7R_A9TL_C14", children: [
+                    {type: "text", name: "INV_X0P7R_A9TH_C16"}
+                ]}
+        ]}
+]};
+
+tree(data, svg, margin, step);
+
+// Toggle children on click.
+function click(d)
+{
+if (d.children)
+{
+    d._children = d.children;
+    var active = [];
+    d.children.forEach(function(c)
+    {
+        if(c.active)
+           active.push(c)
+    })
+    d.children = active;
+}
+else
+{
+    d.children = d._children;
+    d._children = null;
+}
+tree(data, svg, margin, step);
+}
+
+// Toggle children.
+function toggle(d)
+{
+    if (d.children) 
+    {
+        d._children = d.children;
+        d.children = null;
+    } else {
+        d.children = d._children;
+        d._children = null;
+    }
+}
+
+
+        </script>      
+        
+        <footer>
+            <p>Note:</p>
+            <ul>
+                <li>Tree direction: <a href="http://bl.ocks.org/mbostock/3184089">http://bl.ocks.org/mbostock/3184089</a></li>
+                <li>Tree layout: https://github.com/mbostock/d3/wiki/Tree-Layout</li> 
+            </ul>
+        </footer>
+    </body>
+</html>
